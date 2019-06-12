@@ -248,4 +248,4 @@ console.log(swordsman.destroy()); // Sir Mustachio was removed from the game.
     return person1.healthPoints > 0 ? `${person1.name} wins!` : `${person2.name} wins!`;
   }
 
-  doCombat(hero, villain);
+  console.log(doCombat(hero, villain));
