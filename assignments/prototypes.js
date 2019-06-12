@@ -149,14 +149,18 @@ console.log(swordsman.destroy()); // Sir Mustachio was removed from the game.
     this.damageDie = attributes.damageDie;
   }
 
-  //Roll dice
+  //Roll dice by passing in number of sides and an optional bonus to the roll
   function rollDice(numSides, bonus = 0) {
     return Math.floor(Math.random() * (numSides + 1) + bonus);
   }
 
   Character.prototype = Object.create(Humanoid.prototype);
+  
+  //Characters attacking a specified target
   Character.prototype.doAttack = function(target) {
+    //Check to see if the attack roll meets the target's AC
     if (rollDice(20, this.attack) >= target.ac) {
+      //If so, we roll damage
       target.healthPoints -= rollDice(this.damageDie, this.damage);
       console.log(target.takeDamage());
 
@@ -167,6 +171,8 @@ console.log(swordsman.destroy()); // Sir Mustachio was removed from the game.
       console.log(`${this.name} misses!`);
     }
   }
+
+  //Characters rolling initiative (turn order)
   Character.prototype.rollInitiative = function() {
     return rollDice(20, this.initiative);
   }
@@ -214,6 +220,7 @@ console.log(swordsman.destroy()); // Sir Mustachio was removed from the game.
     'damageDie': 8,
   });
 
+  //Using closure to set up a basic turn counter function
   const turnCounter = () => {
     let counter = 0;
     return () => {
@@ -222,11 +229,14 @@ console.log(swordsman.destroy()); // Sir Mustachio was removed from the game.
     };
   };
 
+  //Combat logic
   function doCombat(person1, person2) {
+    //Compare initiative rolls and determine turn order
     let first = person1.rollInitiative() >= person2.rollInitiative() ? person1 : person2;
     let second = first === person1 ? person2 : person1;
     const turns = turnCounter();
 
+    //Continue as long as both combatants have health left
     while (person1.healthPoints > 0 && person2.healthPoints > 0) {
       turns();
       first.doAttack(second);
