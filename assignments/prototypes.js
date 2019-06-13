@@ -1,3 +1,5 @@
+/* eslint-disable no-undef */
+/* eslint-disable no-console */
 /*
   Object oriented design is commonly used in video games.  For this part of the assignment you will be implementing several constructor functions with their correct inheritance hierarchy.
 
@@ -7,7 +9,7 @@
   
   Each constructor function has unique properties and methods that are defined in their block comments below:
 */
-  
+
 /*
   === GameObject ===
   * createdAt
@@ -24,7 +26,7 @@ function GameObject(attributes) {
 
 GameObject.prototype.destroy = function() {
   return `${this.name} was removed from the game.`;
-}
+};
 
 /*
   === CharacterStats ===
@@ -41,7 +43,7 @@ function CharacterStats(attributes) {
 CharacterStats.prototype = Object.create(GameObject.prototype);
 CharacterStats.prototype.takeDamage = function() {
   return `${this.name} took damage`;
-}
+};
 
 /*
   === Humanoid (Having an appearance or character resembling that of a human.) ===
@@ -63,13 +65,13 @@ function Humanoid(attributes) {
 Humanoid.prototype = Object.create(CharacterStats.prototype);
 Humanoid.prototype.greet = function() {
   return `${this.name} offers a greeting in ${this.language}`;
-}
- 
+};
+
 /*
-  * Inheritance chain: GameObject -> CharacterStats -> Humanoid
-  * Instances of Humanoid should have all of the same properties as CharacterStats and GameObject.
-  * Instances of CharacterStats should have all of the same properties as GameObject.
-*/
+ * Inheritance chain: GameObject -> CharacterStats -> Humanoid
+ * Instances of Humanoid should have all of the same properties as CharacterStats and GameObject.
+ * Instances of CharacterStats should have all of the same properties as GameObject.
+ */
 
 // Test you work by un-commenting these 3 objects and the list of console logs below:
 
@@ -83,9 +85,7 @@ const mage = new Humanoid({
   healthPoints: 5,
   name: 'Bruce',
   team: 'Mage Guild',
-  weapons: [
-    'Staff of Shamalama',
-  ],
+  weapons: ['Staff of Shamalama'],
   language: 'Common Tongue',
 });
 
@@ -99,10 +99,7 @@ const swordsman = new Humanoid({
   healthPoints: 15,
   name: 'Sir Mustachio',
   team: 'The Round Table',
-  weapons: [
-    'Giant Sword',
-    'Shield',
-  ],
+  weapons: ['Giant Sword', 'Shield'],
   language: 'Common Tongue',
 });
 
@@ -116,10 +113,7 @@ const archer = new Humanoid({
   healthPoints: 10,
   name: 'Lilith',
   team: 'Forest Kingdom',
-  weapons: [
-    'Bow',
-    'Dagger',
-  ],
+  weapons: ['Bow', 'Dagger'],
   language: 'Elvish',
 });
 
@@ -134,118 +128,115 @@ console.log(archer.greet()); // Lilith offers a greeting in Elvish.
 console.log(mage.takeDamage()); // Bruce took damage.
 console.log(swordsman.destroy()); // Sir Mustachio was removed from the game.
 
+// Stretch task:
+// * Create Villain and Hero constructor functions that inherit from the Humanoid constructor function.
+// * Give the Hero and Villains different methods that could be used to remove health points from objects which could result in destruction if health gets to 0 or drops below 0;
+// * Create two new objects, one a villain and one a hero and fight it out with methods!
 
-  // Stretch task: 
-  // * Create Villain and Hero constructor functions that inherit from the Humanoid constructor function.  
-  // * Give the Hero and Villains different methods that could be used to remove health points from objects which could result in destruction if health gets to 0 or drops below 0;
-  // * Create two new objects, one a villain and one a hero and fight it out with methods!
+function Character(attributes) {
+  Humanoid.call(this, attributes);
+  this.ac = attributes.ac;
+  this.initiative = attributes.initiative;
+  this.attack = attributes.attack;
+  this.damage = attributes.damage;
+  this.damageDie = attributes.damageDie;
+}
 
-  function Character(attributes) {
-    Humanoid.call(this, attributes);
-    this.ac = attributes.ac;
-    this.initiative = attributes.initiative;
-    this.attack = attributes.attack;
-    this.damage = attributes.damage;
-    this.damageDie = attributes.damageDie;
-  }
+//Roll dice by passing in number of sides and an optional bonus to the roll
+function rollDice(numSides, bonus = 0) {
+  return Math.floor(Math.random() * (numSides + 1) + bonus);
+}
 
-  //Roll dice by passing in number of sides and an optional bonus to the roll
-  function rollDice(numSides, bonus = 0) {
-    return Math.floor(Math.random() * (numSides + 1) + bonus);
-  }
+Character.prototype = Object.create(Humanoid.prototype);
 
-  Character.prototype = Object.create(Humanoid.prototype);
-  
-  //Characters attacking a specified target
-  Character.prototype.doAttack = function(target) {
-    //Check to see if the attack roll meets the target's AC
-    if (rollDice(20, this.attack) >= target.ac) {
-      //If so, we roll damage
-      target.healthPoints -= rollDice(this.damageDie, this.damage);
-      console.log(target.takeDamage());
+//Characters attacking a specified target
+Character.prototype.doAttack = function(target) {
+  //Check to see if the attack roll meets the target's AC
+  if (rollDice(20, this.attack) >= target.ac) {
+    //If so, we roll damage
+    target.healthPoints -= rollDice(this.damageDie, this.damage);
+    console.log(target.takeDamage());
 
-      if (target.healthPoints <= 0) {
-        console.log(target.destroy());
-      }
-    } else {
-      console.log(`${this.name} misses!`);
+    if (target.healthPoints <= 0) {
+      console.log(target.destroy());
     }
+  } else {
+    console.log(`${this.name} misses!`);
   }
+};
 
-  //Characters rolling initiative (turn order)
-  Character.prototype.rollInitiative = function() {
-    return rollDice(20, this.initiative);
-  }
+//Characters rolling initiative (turn order)
+Character.prototype.rollInitiative = function() {
+  return rollDice(20, this.initiative);
+};
 
-  const hero = new Character({
-    'createdAt': new Date(),
-    'dimensions': {
-      'length': 2,
-      'width': 2,
-      'height': 4,
-    },
-    'healthPoints': 55,
-    'name': 'Jason',
-    'team': 'Knights of the Crucible',
-    'weapons': [
-      'Sword',
-      'Bow',
-    ],
-    'language': 'Common',
-    'initiative': 3,
-    'ac': 22,
-    'attack': 7,
-    'damage': 4,
-    'damageDie': 12,
-  });
+const hero = new Character({
+  createdAt: new Date(),
+  dimensions: {
+    length: 2,
+    width: 2,
+    height: 4,
+  },
+  healthPoints: 55,
+  name: 'Jason',
+  team: 'Knights of the Crucible',
+  weapons: ['Sword', 'Bow'],
+  language: 'Common',
+  initiative: 3,
+  ac: 22,
+  attack: 7,
+  damage: 4,
+  damageDie: 12,
+});
 
-  const villain = new Character({
-    'createdAt': new Date(),
-    'dimensions': {
-      'length': 3,
-      'width': 4,
-      'height': 6,
-    },
-    'healthPoints': 74,
-    'name': 'Belphegor',
-    'team': 'Demon Army',
-    'weapons': [
-      'Dark Claw',
-    ],
-    'language': 'Demonic',
-    'initiative': 2,
-    'ac': 16,
-    'attack': 8,
-    'damage': 6,
-    'damageDie': 8,
-  });
+const villain = new Character({
+  createdAt: new Date(),
+  dimensions: {
+    length: 3,
+    width: 4,
+    height: 6,
+  },
+  healthPoints: 74,
+  name: 'Belphegor',
+  team: 'Demon Army',
+  weapons: ['Dark Claw'],
+  language: 'Demonic',
+  initiative: 2,
+  ac: 16,
+  attack: 8,
+  damage: 6,
+  damageDie: 8,
+});
 
-  //Using closure to set up a basic turn counter function
-  const turnCounter = () => {
-    let counter = 0;
-    return () => {
-      counter++;
-      console.log(`Turn ${counter}`);
-    };
+//Using closure to set up a basic turn counter function
+const turnCounter = () => {
+  let counter = 0;
+  return () => {
+    counter++;
+    console.log(`Turn ${counter}`);
   };
+};
 
-  //Combat logic
-  function doCombat(person1, person2) {
-    //Compare initiative rolls and determine turn order
-    let first = person1.rollInitiative() >= person2.rollInitiative() ? person1 : person2;
-    let second = first === person1 ? person2 : person1;
-    const turns = turnCounter();
+//Combat logic
+function doCombat(person1, person2) {
+  //Compare initiative rolls and determine turn order
+  let first =
+    person1.rollInitiative() >= person2.rollInitiative() ? person1 : person2;
+  let second = first === person1 ? person2 : person1;
+  const turns = turnCounter();
 
-    //Continue as long as both combatants have health left
-    while (person1.healthPoints > 0 && person2.healthPoints > 0) {
-      turns();
-      first.doAttack(second);
+  //Continue as long as both combatants have health left
+  while (person1.healthPoints > 0 && person2.healthPoints > 0) {
+    turns();
+    first.doAttack(second);
 
-      if (second.healthPoints > 0) {
-        second.doAttack(first);
-      }
+    if (second.healthPoints > 0) {
+      second.doAttack(first);
     }
-    return person1.healthPoints > 0 ? `${person1.name} wins!` : `${person2.name} wins!`;
   }
+  return person1.healthPoints > 0
+    ? `${person1.name} wins!`
+    : `${person2.name} wins!`;
+}
 
-  console.log(doCombat(hero, villain));
+console.log(doCombat(hero, villain));
